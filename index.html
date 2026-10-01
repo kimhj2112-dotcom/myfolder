@@ -119,11 +119,19 @@
 		.lower-grid .panel { min-height: 253px; }
 		.post { display: grid; grid-template-columns: 42px 1fr; gap: 10px; padding: 12px 0; border-bottom: 1px solid #eef1ec; }
 		.post:last-child { border: 0; }
+		.post-open { display: block; width: 100%; padding: 0; border: 0; background: transparent; color: inherit; font: inherit; text-align: left; cursor: pointer; }
+		.post-open:hover .post-title { color: var(--sea); }
+		.post-open:focus-visible { outline: 2px solid #8eb8a6; outline-offset: 3px; }
 		.post-date { width: 38px; height: 42px; display: grid; align-content: center; justify-items: center; border-radius: 4px; background: #f6eee5; color: #a67251; }
 		.post-date strong { font-size: 14px; line-height: 1; }
 		.post-date span { margin-top: 3px; font-size: 8px; }
 		.post-title { margin: 1px 0 5px; font-size: 11px; font-weight: 600; line-height: 1.5; }
 		.post-meta { color: #94a09a; font-size: 9px; }
+		#post-reader { width: min(620px, calc(100% - 32px)); max-height: min(82vh, 760px); overflow-y: auto; }
+		.reader-meta { display: flex; gap: 9px; margin-bottom: 12px; color: #8a9992; font-size: 10px; }
+		.reader-meta span + span::before { margin-right: 9px; content: "·"; }
+		.reader-content h2 { margin-bottom: 18px; font-size: 20px; line-height: 1.5; }
+		.reader-body p { margin: 0 0 14px; color: #405b53; font-size: 13px; line-height: 1.9; }
 		.notes-workspace { display: grid; grid-template-columns: minmax(92px, .75fr) minmax(0, 1.5fr); gap: 11px; min-height: 160px; }
 		.note-list { display: grid; align-content: start; gap: 5px; max-height: 172px; overflow-y: auto; }
 		.note-select { width: 100%; min-width: 0; padding: 8px; border: 1px solid transparent; border-radius: 4px; background: #f6f8f3; text-align: left; cursor: pointer; }
@@ -283,8 +291,8 @@
 				<section class="panel" id="journal">
 					<div class="section-heading"><div><h2><i data-lucide="book-open-text"></i> 최근 블로그</h2><p>기록해 둔 생각의 조각들</p></div><button class="text-button" id="write-post"><i data-lucide="square-pen"></i> 글쓰기</button></div>
 					<div id="post-list">
-						<article class="post"><div class="post-date"><strong>28</strong><span>SEP</span></div><div><p class="post-title">파도 소리를 따라 걷던 오후</p><span class="post-meta">일상 · 3분 읽기</span></div></article>
-						<article class="post"><div class="post-date"><strong>21</strong><span>SEP</span></div><div><p class="post-title">요즘의 작은 기쁨을 모아</p><span class="post-meta">기록 · 2분 읽기</span></div></article>
+						<article class="post"><div class="post-date"><strong>28</strong><span>SEP</span></div><button class="post-open" type="button" data-post-id="ocean-walk"><p class="post-title">파도 소리를 따라 걷던 오후</p><span class="post-meta">일상 · 3분 읽기</span></button></article>
+						<article class="post"><div class="post-date"><strong>21</strong><span>SEP</span></div><button class="post-open" type="button" data-post-id="small-joys"><p class="post-title">요즘의 작은 기쁨을 모아</p><span class="post-meta">기록 · 2분 읽기</span></button></article>
 					</div>
 				</section>
 
@@ -328,6 +336,14 @@
 			</div>
 			<div class="dialog-actions"><button id="cancel-event" type="button">취소</button><button type="submit">일정 저장</button></div>
 		</form>
+	</dialog>
+	<dialog id="post-reader">
+		<article class="reader-content">
+			<div class="reader-meta"><span id="reader-date"></span><span id="reader-category"></span></div>
+			<h2 id="reader-title"></h2>
+			<div class="reader-body" id="reader-body"></div>
+			<div class="dialog-actions"><button id="post-close" type="button">닫기</button></div>
+		</article>
 	</dialog>
 	<dialog id="google-setup-dialog">
 		<form class="google-setup" id="google-setup-form">
@@ -819,6 +835,48 @@
 				showToast("일정을 추가했어요.");
 			}
 		});
+		const blogPosts = {
+			oceanWalk: {
+				id: "ocean-walk",
+				date: "9월 28일",
+				category: "일상",
+				title: "파도 소리를 따라 걷던 오후",
+				content: [
+					"마음이 복잡한 날에는 바다 쪽으로 걸음을 옮긴다. 파도는 아무 말도 하지 않지만, 밀려왔다가 물러나는 모습을 보고 있으면 생각들도 조금씩 제자리를 찾는다.",
+					"그날은 바람이 선선했다. 젖은 모래 위에 남은 발자국이 다음 파도에 지워지는 걸 한참 바라봤다. 꼭 오래 붙들어 두지 않아도 되는 것들이 있다는 생각이 들었다.",
+					"돌아오는 길에는 어깨가 조금 가벼워졌다. 다음에도 마음이 바빠지면, 잠깐 멈춰 파도 소리를 들으러 가야겠다."
+				]
+			},
+			smallJoys: {
+				id: "small-joys",
+				date: "9월 21일",
+				category: "기록",
+				title: "요즘의 작은 기쁨을 모아",
+				content: [
+					"요즘은 하루를 크게 바꾸는 일보다 작고 선명한 순간을 기억해 두려고 한다. 아침 창문으로 들어온 바람, 좋아하는 노래가 알맞은 순간에 나온 일, 따뜻한 커피 한 잔 같은 것들.",
+					"누군가 건넨 짧은 안부와 집에 돌아오는 길의 저녁 하늘도 좋았다. 적어 놓고 보니 평범했던 하루 안에도 기뻐할 만한 장면이 꽤 많았다.",
+					"오늘의 작은 기쁨을 하나씩 모아 두면, 바쁜 날에 다시 펼쳐볼 수 있는 나만의 작은 지도처럼 남을 것 같다."
+				]
+			}
+		};
+		const postReader = document.getElementById("post-reader");
+		document.querySelectorAll(".post-open").forEach((button) => {
+			button.addEventListener("click", () => {
+				const post = Object.values(blogPosts).find((item) => item.id === button.dataset.postId);
+				if (!post) return;
+				document.getElementById("reader-date").textContent = post.date;
+				document.getElementById("reader-category").textContent = post.category;
+				document.getElementById("reader-title").textContent = post.title;
+				const body = document.getElementById("reader-body");
+				body.replaceChildren(...post.content.map((paragraph) => {
+					const element = document.createElement("p");
+					element.textContent = paragraph;
+					return element;
+				}));
+				postReader.showModal();
+			});
+		});
+		document.getElementById("post-close").addEventListener("click", () => postReader.close());
 		document.getElementById("write-post").addEventListener("click", () => showDialog("블로그 글쓰기", "블로그 편집기는 아직 연결되지 않았어요. 기존 글 목록에 글쓰기 링크를 연결해 사용할 수 있습니다."));
 		const demoNewsItems = [
 			{ source: "바다와 환경", title: "바다가 보내는 신호, 해양 생태계에서 발견한 변화", detail: "내셔널지오그래픽 · 환경", href: "https://www.nationalgeographic.com/environment", color: "#dc795e" },
