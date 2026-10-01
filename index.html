@@ -109,13 +109,22 @@
 		.note-footer { display: flex; justify-content: space-between; gap: 8px; margin-top: 9px; color: #9aa69f; font-size: 9px; }
 		.saved-status { display: inline-flex; align-items: center; gap: 4px; color: var(--sea); }
 		.saved-status i { width: 12px; height: 12px; }
-		.news-item { padding: 12px 0; border-bottom: 1px solid #eef1ec; }
+		.news-list { min-height: 126px; }
+		.news-item { padding: 12px 0; animation: news-enter .28s ease both; }
 		.news-item:last-child { border-bottom: 0; }
 		.news-source { display: flex; align-items: center; gap: 6px; color: #9a8270; font-size: 9px; }
 		.source-dot { width: 6px; height: 6px; border-radius: 50%; background: var(--coral); }
 		.news-item a { display: block; margin-top: 5px; font-size: 11px; font-weight: 600; line-height: 1.55; }
 		.news-item a:hover { color: var(--sea); }
 		.news-time { margin-top: 4px; color: #9aa69f; font-size: 9px; }
+		.news-refresh:disabled { opacity: .55; cursor: wait; }
+		.news-controls { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding-top: 10px; border-top: 1px solid #eef1ec; }
+		.news-control-group { display: flex; align-items: center; gap: 6px; }
+		.news-control { width: 29px; height: 29px; display: grid; place-items: center; border: 1px solid var(--line); border-radius: 4px; background: var(--white); color: #56726a; cursor: pointer; }
+		.news-control:hover { border-color: #b5d3c5; background: #f1f7f1; }
+		.news-control i { width: 14px; height: 14px; }
+		.news-counter { color: #82918a; font-size: 10px; font-variant-numeric: tabular-nums; }
+		@keyframes news-enter { from { opacity: 0; transform: translateY(7px); } to { opacity: 1; transform: translateY(0); } }
 		.connect-row { display: flex; align-items: center; gap: 10px; margin-top: 18px; padding: 13px 16px; border: 1px solid #e5ece5; border-radius: 6px; background: #edf4ee; }
 		.google-mark { width: 30px; height: 30px; display: grid; place-items: center; border-radius: 50%; background: white; color: #4285f4; font-size: 15px; font-weight: 700; }
 		.connect-copy { flex: 1; min-width: 0; }
@@ -137,7 +146,6 @@
 			.nav { gap: 16px; margin-right: 10px; }
 			.lower-grid { grid-template-columns: 1fr 1fr; }
 			.lower-grid .panel:last-child { grid-column: 1 / -1; min-height: 0; }
-			.news-list { display: grid; grid-template-columns: 1fr 1fr; gap: 0 18px; }
 		}
 		@media (max-width: 650px) {
 			.shell { padding: 0 15px 30px; }
@@ -155,7 +163,6 @@
 			.calendar-panel, .task-panel { min-height: unset; }
 			.week { gap: 2px; }
 			.day { padding-right: 1px; padding-left: 1px; }
-			.news-list { display: block; }
 			.connect-row { align-items: flex-start; padding: 12px; }
 			.connect-copy span { line-height: 1.5; }
 			.connect-button { padding: 7px 8px; }
@@ -230,10 +237,11 @@
 				</section>
 
 				<section class="panel" id="news">
-					<div class="section-heading"><div><h2><i data-lucide="newspaper"></i> 오늘의 읽을거리</h2><p>바다 건너 전해온 이야기</p></div><button class="text-button" id="refresh-news" aria-label="뉴스 목록 새로고침"><i data-lucide="refresh-cw"></i></button></div>
-					<div class="news-list">
-						<article class="news-item"><span class="news-source"><i class="source-dot"></i> 바다와 환경</span><a href="https://www.nationalgeographic.com/environment" target="_blank" rel="noreferrer">바다가 보내는 신호, 해양 생태계에서 발견한 변화</a><p class="news-time">오늘의 추천 읽을거리</p></article>
-						<article class="news-item"><span class="news-source"><i class="source-dot" style="background:#5c9e86"></i> 느린 생활</span><a href="https://www.theguardian.com/lifeandstyle" target="_blank" rel="noreferrer">조금 느리게 살아도 괜찮은 이유</a><p class="news-time">오늘의 추천 읽을거리</p></article>
+					<div class="section-heading"><div><h2><i data-lucide="newspaper"></i> 오늘의 뉴스</h2><p id="news-status">한국어 실시간 뉴스를 불러오는 중</p></div><button class="text-button news-refresh" id="news-refresh" aria-label="뉴스 새로고침"><i data-lucide="refresh-cw"></i></button></div>
+					<div class="news-list" id="news-list" aria-live="polite"></div>
+					<div class="news-controls" aria-label="뉴스 슬라이드 조작">
+						<div class="news-control-group"><button class="news-control" id="news-prev" aria-label="이전 뉴스"><i data-lucide="chevron-left"></i></button><button class="news-control" id="news-toggle" aria-label="자동 넘김 일시정지"><i data-lucide="pause"></i></button><button class="news-control" id="news-next" aria-label="다음 뉴스"><i data-lucide="chevron-right"></i></button></div>
+						<span class="news-counter" id="news-counter" aria-label="현재 뉴스 번호">01 / 04</span>
 					</div>
 				</section>
 			</div>
@@ -398,7 +406,127 @@
 			showToast("일정을 추가했어요.");
 		});
 		document.getElementById("write-post").addEventListener("click", () => showDialog("블로그 글쓰기", "블로그 편집기는 아직 연결되지 않았어요. 기존 글 목록에 글쓰기 링크를 연결해 사용할 수 있습니다."));
-		document.getElementById("refresh-news").addEventListener("click", () => showToast("추천 읽을거리를 확인했어요."));
+		const demoNewsItems = [
+			{ source: "바다와 환경", title: "바다가 보내는 신호, 해양 생태계에서 발견한 변화", detail: "내셔널지오그래픽 · 환경", href: "https://www.nationalgeographic.com/environment", color: "#dc795e" },
+			{ source: "느린 생활", title: "조금 느리게 살아도 괜찮은 이유", detail: "가디언 · 라이프스타일", href: "https://www.theguardian.com/lifeandstyle", color: "#5c9e86" },
+			{ source: "오늘의 발견", title: "자연을 가까이하는 작은 습관들", detail: "내셔널지오그래픽 · 자연", href: "https://www.nationalgeographic.com/nature", color: "#d1a548" },
+			{ source: "좋은 읽기", title: "마음에 여백을 만드는 주말의 기록", detail: "가디언 · 문화와 생활", href: "https://www.theguardian.com/lifeandstyle", color: "#7297a1" }
+		];
+		const newsColors = ["#dc795e", "#5c9e86", "#d1a548", "#7297a1"];
+		const newsFeedUrl = "https://news.google.com/rss?hl=ko&gl=KR&ceid=KR:ko";
+		const newsRefreshInterval = 15 * 60 * 1000;
+		let newsItems = demoNewsItems;
+		let activeNews = 0;
+		let newsPaused = false;
+		let newsFocused = false;
+		let newsTimer;
+		let newsLoading = false;
+		let lastNewsRequest = 0;
+		function renderNews() {
+			const item = newsItems[activeNews];
+			const article = document.createElement("article");
+			article.className = "news-item";
+			const source = document.createElement("span");
+			source.className = "news-source";
+			const dot = document.createElement("i");
+			dot.className = "source-dot";
+			dot.style.backgroundColor = item.color;
+			source.append(dot, document.createTextNode(item.source));
+			const link = document.createElement("a");
+			link.href = item.href;
+			link.target = "_blank";
+			link.rel = "noopener noreferrer";
+			link.textContent = item.title;
+			const detail = document.createElement("p");
+			detail.className = "news-time";
+			detail.textContent = item.detail;
+			article.append(source, link, detail);
+			document.getElementById("news-list").replaceChildren(article);
+			document.getElementById("news-counter").textContent = `${String(activeNews + 1).padStart(2, "0")} / ${String(newsItems.length).padStart(2, "0")}`;
+			const toggle = document.getElementById("news-toggle");
+			toggle.setAttribute("aria-label", newsPaused ? "자동 넘김 시작" : "자동 넘김 일시정지");
+			toggle.innerHTML = `<i data-lucide="${newsPaused ? "play" : "pause"}"></i>`;
+			icons();
+		}
+		function syncNewsTimer() {
+			clearInterval(newsTimer);
+			if (!newsPaused && !newsFocused && !document.hidden) newsTimer = setInterval(() => advanceNews(1, false), 7000);
+		}
+		function advanceNews(direction, resetTimer = true) {
+			activeNews = (activeNews + direction + newsItems.length) % newsItems.length;
+			renderNews();
+			if (resetTimer) syncNewsTimer();
+		}
+		function formatNewsAge(value) {
+			const published = new Date(value);
+			if (Number.isNaN(published.getTime())) return "최근 기사";
+			const minutes = Math.max(0, Math.floor((Date.now() - published.getTime()) / 60000));
+			if (minutes < 60) return `${minutes}분 전`;
+			if (minutes < 1440) return `${Math.floor(minutes / 60)}시간 전`;
+			return new Intl.DateTimeFormat("ko-KR", { month: "numeric", day: "numeric" }).format(published);
+		}
+		async function refreshLiveNews() {
+			if (newsLoading) return;
+			newsLoading = true;
+			lastNewsRequest = Date.now();
+			const refreshButton = document.getElementById("news-refresh");
+			const status = document.getElementById("news-status");
+			const controller = new AbortController();
+			const timeout = setTimeout(() => controller.abort(), 12000);
+			refreshButton.disabled = true;
+			if (newsItems === demoNewsItems) status.textContent = "실시간 뉴스를 불러오는 중";
+			try {
+				const endpoint = `https://api.rss2json.com/v1/api.json?rss_url=${encodeURIComponent(newsFeedUrl)}`;
+				const response = await fetch(endpoint, { cache: "no-store", signal: controller.signal });
+				if (!response.ok) throw new Error("News feed request failed");
+				const feed = await response.json();
+				if (feed.status !== "ok" || !Array.isArray(feed.items)) throw new Error("News feed is unavailable");
+				const articles = feed.items.map((entry, index) => {
+					let title = String(entry.title || "").trim();
+					let source = String(entry.author || "").trim();
+					const separator = title.lastIndexOf(" - ");
+					if (separator > 0) {
+						if (!source) source = title.slice(separator + 3).trim();
+						title = title.slice(0, separator).trim();
+					}
+					let href = "";
+					try {
+						const url = new URL(entry.link);
+						if (url.protocol === "https:" || url.protocol === "http:") href = url.href;
+					} catch { /* Ignore malformed feed links. */ }
+					return {
+						source: source || "Google 뉴스",
+						title,
+						detail: `${source || "Google 뉴스"} · ${formatNewsAge(entry.pubDate)}`,
+						href,
+						color: newsColors[index % newsColors.length]
+					};
+				}).filter((article) => article.title && article.href);
+				if (!articles.length) throw new Error("No usable headlines returned");
+				newsItems = articles;
+				activeNews = 0;
+				status.textContent = `Google 뉴스 · 업데이트 ${new Intl.DateTimeFormat("ko-KR", { hour: "2-digit", minute: "2-digit" }).format(new Date())}`;
+				renderNews();
+			} catch {
+				status.textContent = newsItems === demoNewsItems ? "실시간 연결 실패 · 예시 뉴스를 표시 중" : "갱신 실패 · 이전 뉴스를 표시 중";
+			} finally {
+				clearTimeout(timeout);
+				refreshButton.disabled = false;
+			}
+		}
+		document.getElementById("news-prev").addEventListener("click", () => advanceNews(-1));
+		document.getElementById("news-next").addEventListener("click", () => advanceNews(1));
+		document.getElementById("news-toggle").addEventListener("click", () => { newsPaused = !newsPaused; renderNews(); syncNewsTimer(); });
+		document.getElementById("news-refresh").addEventListener("click", refreshLiveNews);
+		const newsPanel = document.getElementById("news");
+		newsPanel.addEventListener("mouseenter", () => { newsFocused = true; syncNewsTimer(); });
+		newsPanel.addEventListener("mouseleave", () => { newsFocused = false; syncNewsTimer(); });
+		newsPanel.addEventListener("focusin", () => { newsFocused = true; syncNewsTimer(); });
+		newsPanel.addEventListener("focusout", (event) => { if (!newsPanel.contains(event.relatedTarget)) { newsFocused = false; syncNewsTimer(); } });
+		document.addEventListener("visibilitychange", () => {
+			syncNewsTimer();
+			if (!document.hidden && Date.now() - lastNewsRequest >= newsRefreshInterval) refreshLiveNews();
+		});
 		let toastTimer;
 		function showToast(message) {
 			const toast = document.getElementById("toast");
@@ -409,6 +537,10 @@
 		}
 		renderWeek();
 		renderTasks();
+		renderNews();
+		refreshLiveNews();
+		setInterval(() => { if (!document.hidden) refreshLiveNews(); }, newsRefreshInterval);
+		syncNewsTimer();
 		icons();
 	</script>
 </body>
