@@ -1,0 +1,415 @@
+<!doctype html>
+<html lang="ko">
+<head>
+	<meta charset="utf-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<meta name="theme-color" content="#f4f7f2">
+	<title>파도 — 나의 하루</title>
+	<link rel="preconnect" href="https://fonts.googleapis.com">
+	<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+	<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Noto+Sans+KR:wght@400;500;600;700&display=swap" rel="stylesheet">
+	<script src="https://unpkg.com/lucide@latest"></script>
+	<style>
+		:root {
+			color-scheme: light;
+			--ink: #183b3b;
+			--muted: #728581;
+			--paper: #f4f7f2;
+			--white: #fffefa;
+			--line: #e6ece5;
+			--sea: #16796f;
+			--sea-light: #dff0e8;
+			--coral: #dc795e;
+			--sun: #edc66a;
+			--shadow: 0 12px 34px rgba(36, 67, 58, .055);
+		}
+		* { box-sizing: border-box; }
+		html { scroll-behavior: smooth; }
+		body { margin: 0; background: var(--paper); color: var(--ink); font-family: "DM Sans", "Noto Sans KR", sans-serif; font-size: 14px; }
+		button, input, textarea { font: inherit; }
+		button { color: inherit; }
+		a { color: inherit; text-decoration: none; }
+		.shell { max-width: 1440px; min-height: 100vh; margin: 0 auto; padding: 0 52px 54px; }
+		.topbar { height: 76px; display: flex; align-items: center; justify-content: space-between; gap: 24px; }
+		.brand { display: flex; align-items: center; gap: 11px; font-size: 17px; font-weight: 700; letter-spacing: .2px; white-space: nowrap; }
+		.brand-mark { display: grid; place-items: center; width: 34px; height: 34px; border-radius: 50%; color: var(--white); background: var(--sea); }
+		.brand-mark i { width: 18px; height: 18px; }
+		.brand small { display: block; margin-top: 1px; color: #96a6a0; font-size: 9px; font-weight: 600; letter-spacing: 1.5px; }
+		.nav { display: flex; align-items: center; gap: 29px; margin-left: auto; margin-right: 26px; }
+		.nav a { color: #71817c; font-size: 12px; transition: color .2s; }
+		.nav a:hover, .nav a.active { color: var(--sea); }
+		.profile { display: flex; align-items: center; gap: 10px; font-size: 12px; font-weight: 600; white-space: nowrap; }
+		.avatar { width: 34px; height: 34px; display: grid; place-items: center; border: 2px solid white; border-radius: 50%; background: #e9c7a9; color: #795242; font-size: 12px; }
+		.hero { position: relative; min-height: 200px; display: flex; align-items: center; justify-content: space-between; gap: 20px; overflow: hidden; padding: 30px 38px; border-radius: 8px; color: white; background: #195957 url("https://images.unsplash.com/photo-1500375592092-40eb2168fd21?auto=format&fit=crop&w=2000&q=85") center 53% / cover; }
+		.hero::before { position: absolute; inset: 0; content: ""; background: linear-gradient(90deg, rgba(11, 53, 53, .79), rgba(15, 66, 64, .39) 54%, rgba(12, 50, 52, .08)); }
+		.hero-copy, .hero-meta { position: relative; z-index: 1; }
+		.eyebrow { margin: 0 0 11px; color: #d7e9de; font-size: 10px; font-weight: 700; letter-spacing: 2px; }
+		.hero h1 { margin: 0; font-size: clamp(24px, 3vw, 34px); line-height: 1.35; font-weight: 600; }
+		.hero h1 span { color: #f1cf7e; }
+		.hero-sub { margin: 9px 0 0; color: rgba(255,255,255,.78); font-size: 12px; }
+		.hero-meta { display: flex; align-items: center; gap: 12px; align-self: flex-end; padding: 10px 14px; border: 1px solid rgba(255,255,255,.28); border-radius: 6px; background: rgba(12,49,48,.27); backdrop-filter: blur(8px); white-space: nowrap; }
+		.weather-icon { color: #f4d27d; }
+		.weather-icon i { width: 24px; height: 24px; }
+		.weather-meta strong { display: block; font-size: 16px; }
+		.weather-meta span { color: rgba(255,255,255,.76); font-size: 10px; }
+		.section-heading { display: flex; align-items: center; justify-content: space-between; gap: 14px; margin-bottom: 14px; }
+		.section-heading h2 { display: flex; align-items: center; gap: 8px; margin: 0; font-size: 14px; font-weight: 700; }
+		.section-heading h2 i { width: 16px; height: 16px; color: var(--sea); }
+		.section-heading p { margin: 4px 0 0; color: var(--muted); font-size: 10px; }
+		.text-button { display: inline-flex; align-items: center; gap: 5px; padding: 5px 0; border: 0; background: transparent; color: var(--sea); font-size: 11px; cursor: pointer; }
+		.text-button i { width: 14px; height: 14px; }
+		.dashboard-grid { display: grid; grid-template-columns: minmax(0, 1.5fr) minmax(300px, .9fr); gap: 18px; margin-top: 19px; }
+		.panel { min-width: 0; padding: 20px 22px; border: 1px solid rgba(226,234,225,.86); border-radius: 7px; background: var(--white); box-shadow: var(--shadow); }
+		.calendar-panel { min-height: 300px; }
+		.calendar-head { display: flex; align-items: center; justify-content: space-between; gap: 10px; margin: 4px 0 17px; }
+		.month-label { font-size: 13px; font-weight: 700; }
+		.calendar-controls { display: flex; align-items: center; gap: 5px; }
+		.icon-button { width: 29px; height: 29px; display: grid; place-items: center; border: 1px solid var(--line); border-radius: 5px; background: var(--white); cursor: pointer; }
+		.icon-button:hover { border-color: #b5d3c5; background: #f1f7f1; }
+		.icon-button i { width: 15px; height: 15px; }
+		.week { display: grid; grid-template-columns: repeat(7, minmax(0,1fr)); gap: 7px; }
+		.day { min-width: 0; display: flex; flex-direction: column; align-items: center; gap: 9px; padding: 10px 3px 11px; border-radius: 5px; color: #85928d; font-size: 10px; }
+		.day strong { color: var(--ink); font-size: 13px; font-weight: 500; }
+		.day.today { background: #eaf4ee; color: var(--sea); }
+		.day.today strong { display: grid; place-items: center; width: 26px; height: 26px; margin: -6px 0 -6px; border-radius: 50%; background: var(--sea); color: white; }
+		.day-dot { width: 4px; height: 4px; border-radius: 50%; background: var(--coral); }
+		.agenda { display: grid; grid-template-columns: 48px minmax(0,1fr); gap: 0 12px; margin-top: 17px; }
+		.agenda-time { padding: 11px 0; border-top: 1px solid #eef1ec; color: #84928c; font-size: 10px; }
+		.event { margin: 5px 0; padding: 8px 11px; border-left: 2px solid #71a995; border-radius: 0 4px 4px 0; background: #eff6f0; }
+		.event.coral { border-color: var(--coral); background: #fbf0eb; }
+		.event strong { display: block; font-size: 11px; font-weight: 600; }
+		.event span { display: block; margin-top: 3px; color: var(--muted); font-size: 10px; }
+		.agenda-empty { padding: 13px 0; color: #a0aaa4; font-size: 11px; }
+		.task-panel { min-height: 300px; }
+		.task-count { min-width: 20px; height: 20px; display: inline-grid; place-items: center; margin-left: 2px; border-radius: 50%; background: #f8eee5; color: #be7358; font-size: 10px; }
+		.task-list { display: grid; gap: 1px; }
+		.task-row { display: flex; align-items: center; gap: 10px; min-height: 43px; padding: 6px 2px; border-bottom: 1px solid #f0f2ee; }
+		.task-check { width: 17px; height: 17px; margin: 0; accent-color: var(--sea); cursor: pointer; }
+		.task-title { flex: 1; min-width: 0; overflow-wrap: anywhere; font-size: 11px; }
+		.task-title.done { color: #a6b0a9; text-decoration: line-through; }
+		.task-tag { padding: 4px 7px; border-radius: 3px; background: #eff4ec; color: #738b6d; font-size: 9px; white-space: nowrap; }
+		.task-tag.important { background: #fbefea; color: #be7358; }
+		.delete-task { display: grid; place-items: center; padding: 5px; border: 0; background: transparent; color: #a0aaa4; cursor: pointer; }
+		.delete-task i { width: 13px; height: 13px; }
+		.task-form { display: flex; gap: 8px; margin-top: 13px; }
+		.task-form input { flex: 1; min-width: 0; height: 34px; padding: 0 10px; border: 1px solid var(--line); border-radius: 4px; outline: none; background: #fbfcf9; font-size: 11px; }
+		.task-form input:focus, .note-area:focus { border-color: #8eb8a6; }
+		.add-button { width: 35px; display: grid; place-items: center; border: 0; border-radius: 4px; background: var(--sea); color: white; cursor: pointer; }
+		.add-button i { width: 16px; height: 16px; }
+		.lower-grid { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 18px; margin-top: 18px; align-items: stretch; }
+		.lower-grid .panel { min-height: 253px; }
+		.post { display: grid; grid-template-columns: 42px 1fr; gap: 10px; padding: 12px 0; border-bottom: 1px solid #eef1ec; }
+		.post:last-child { border: 0; }
+		.post-date { width: 38px; height: 42px; display: grid; align-content: center; justify-items: center; border-radius: 4px; background: #f6eee5; color: #a67251; }
+		.post-date strong { font-size: 14px; line-height: 1; }
+		.post-date span { margin-top: 3px; font-size: 8px; }
+		.post-title { margin: 1px 0 5px; font-size: 11px; font-weight: 600; line-height: 1.5; }
+		.post-meta { color: #94a09a; font-size: 9px; }
+		.note-area { width: 100%; min-height: 144px; resize: vertical; padding: 11px 12px; border: 1px solid #edf0e9; border-radius: 4px; outline: none; background: #fcfcf8; color: #405b53; font-size: 11px; line-height: 1.8; }
+		.note-footer { display: flex; justify-content: space-between; gap: 8px; margin-top: 9px; color: #9aa69f; font-size: 9px; }
+		.saved-status { display: inline-flex; align-items: center; gap: 4px; color: var(--sea); }
+		.saved-status i { width: 12px; height: 12px; }
+		.news-item { padding: 12px 0; border-bottom: 1px solid #eef1ec; }
+		.news-item:last-child { border-bottom: 0; }
+		.news-source { display: flex; align-items: center; gap: 6px; color: #9a8270; font-size: 9px; }
+		.source-dot { width: 6px; height: 6px; border-radius: 50%; background: var(--coral); }
+		.news-item a { display: block; margin-top: 5px; font-size: 11px; font-weight: 600; line-height: 1.55; }
+		.news-item a:hover { color: var(--sea); }
+		.news-time { margin-top: 4px; color: #9aa69f; font-size: 9px; }
+		.connect-row { display: flex; align-items: center; gap: 10px; margin-top: 18px; padding: 13px 16px; border: 1px solid #e5ece5; border-radius: 6px; background: #edf4ee; }
+		.google-mark { width: 30px; height: 30px; display: grid; place-items: center; border-radius: 50%; background: white; color: #4285f4; font-size: 15px; font-weight: 700; }
+		.connect-copy { flex: 1; min-width: 0; }
+		.connect-copy strong { display: block; font-size: 11px; }
+		.connect-copy span { display: block; margin-top: 3px; color: var(--muted); font-size: 9px; }
+		.connect-button { padding: 8px 11px; border: 1px solid #cbd9ce; border-radius: 4px; background: var(--white); color: #42695b; font-size: 10px; cursor: pointer; white-space: nowrap; }
+		.footer { display: flex; justify-content: space-between; gap: 10px; margin-top: 22px; color: #98a69e; font-size: 9px; }
+		.toast { position: fixed; right: 24px; bottom: 24px; z-index: 10; padding: 12px 17px; border-radius: 5px; background: #173f3c; color: white; font-size: 12px; opacity: 0; pointer-events: none; transform: translateY(8px); transition: opacity .2s, transform .2s; }
+		.toast.show { opacity: 1; transform: translateY(0); }
+		dialog { width: min(420px, calc(100% - 32px)); padding: 24px; border: 1px solid var(--line); border-radius: 8px; color: var(--ink); box-shadow: 0 20px 70px rgba(22,55,49,.22); }
+		dialog::backdrop { background: rgba(16,43,41,.42); backdrop-filter: blur(3px); }
+		dialog h2 { margin: 0 0 10px; font-size: 17px; }
+		dialog p { color: var(--muted); font-size: 12px; line-height: 1.7; }
+		.dialog-actions { display: flex; justify-content: flex-end; gap: 8px; margin-top: 19px; }
+		.dialog-actions button { padding: 8px 13px; border: 1px solid var(--line); border-radius: 4px; background: white; cursor: pointer; font-size: 11px; }
+		.dialog-actions button:last-child { border-color: var(--sea); background: var(--sea); color: white; }
+		@media (max-width: 960px) {
+			.shell { padding: 0 24px 40px; }
+			.nav { gap: 16px; margin-right: 10px; }
+			.lower-grid { grid-template-columns: 1fr 1fr; }
+			.lower-grid .panel:last-child { grid-column: 1 / -1; min-height: 0; }
+			.news-list { display: grid; grid-template-columns: 1fr 1fr; gap: 0 18px; }
+		}
+		@media (max-width: 650px) {
+			.shell { padding: 0 15px 30px; }
+			.topbar { height: 64px; }
+			.nav { position: fixed; z-index: 5; right: 12px; bottom: 12px; left: 12px; justify-content: space-around; gap: 4px; margin: 0; padding: 12px 8px; border: 1px solid #e5ece5; border-radius: 7px; background: rgba(255,254,250,.96); box-shadow: 0 8px 26px rgba(36,67,58,.12); backdrop-filter: blur(12px); }
+			.nav a { font-size: 10px; }
+			.profile span:last-child { display: none; }
+			.hero { min-height: 184px; padding: 24px 20px; background-position: 57% center; }
+			.hero h1 { font-size: 23px; }
+			.hero-meta { align-self: flex-end; gap: 7px; padding: 8px; }
+			.weather-meta span { font-size: 9px; }
+			.dashboard-grid, .lower-grid { grid-template-columns: 1fr; gap: 13px; margin-top: 13px; }
+			.lower-grid .panel:last-child { grid-column: auto; }
+			.panel { padding: 17px 16px; }
+			.calendar-panel, .task-panel { min-height: unset; }
+			.week { gap: 2px; }
+			.day { padding-right: 1px; padding-left: 1px; }
+			.news-list { display: block; }
+			.connect-row { align-items: flex-start; padding: 12px; }
+			.connect-copy span { line-height: 1.5; }
+			.connect-button { padding: 7px 8px; }
+			.footer { padding-bottom: 58px; }
+		}
+		@media (prefers-reduced-motion: reduce) { *, *::before, *::after { scroll-behavior: auto !important; transition-duration: .01ms !important; } }
+	</style>
+</head>
+<body>
+	<div class="shell">
+		<header class="topbar">
+			<a class="brand" href="#home" aria-label="파도 홈">
+				<span class="brand-mark"><i data-lucide="waves"></i></span>
+				<span>파도<small>MY LITTLE CURRENT</small></span>
+			</a>
+			<nav class="nav" aria-label="주요 메뉴">
+				<a class="active" href="#home">홈</a>
+				<a href="#calendar">캘린더</a>
+				<a href="#journal">블로그</a>
+				<a href="#notes">노트</a>
+				<a href="#news">뉴스</a>
+			</nav>
+			<div class="profile"><span class="avatar">현</span><span>김현진</span></div>
+		</header>
+
+		<main id="home">
+			<section class="hero" aria-label="오늘의 인사">
+				<div class="hero-copy">
+					<p class="eyebrow" id="today-label">THURSDAY, OCTOBER 01</p>
+					<h1>좋은 아침이에요,<br><span>현진님.</span> 오늘은 어떤 하루를 만들까요?</h1>
+					<p class="hero-sub">마음은 가볍게, 하루의 리듬은 나답게.</p>
+				</div>
+				<div class="hero-meta" aria-label="서울 날씨">
+					<span class="weather-icon"><i data-lucide="sun"></i></span>
+					<div class="weather-meta"><strong>22°</strong><span>서울 · 맑음</span></div>
+				</div>
+			</section>
+
+			<div class="dashboard-grid">
+				<section class="panel calendar-panel" id="calendar">
+					<div class="section-heading">
+						<div><h2><i data-lucide="calendar-days"></i> 이번 주 일정</h2><p>차분하게, 하나씩 흘러가요</p></div>
+						<button class="text-button" id="add-event"><i data-lucide="plus"></i> 일정 추가</button>
+					</div>
+					<div class="calendar-head"><span class="month-label" id="month-label">2026년 10월</span><div class="calendar-controls"><button class="icon-button" id="prev-week" aria-label="이전 주"><i data-lucide="chevron-left"></i></button><button class="icon-button" id="next-week" aria-label="다음 주"><i data-lucide="chevron-right"></i></button></div></div>
+					<div class="week" id="week-days" aria-label="이번 주 날짜"></div>
+					<div class="agenda" id="agenda"></div>
+				</section>
+
+				<section class="panel task-panel" id="tasks">
+					<div class="section-heading">
+						<div><h2><i data-lucide="list-checks"></i> 오늘의 할 일 <span class="task-count" id="task-count">0</span></h2><p>작은 완료가 하루를 바꿔요</p></div>
+					</div>
+					<div class="task-list" id="task-list"></div>
+					<form class="task-form" id="task-form"><input id="task-input" aria-label="새 할 일" placeholder="새로운 할 일을 적어보세요" maxlength="90"><button class="add-button" aria-label="할 일 추가"><i data-lucide="plus"></i></button></form>
+				</section>
+			</div>
+
+			<div class="lower-grid">
+				<section class="panel" id="journal">
+					<div class="section-heading"><div><h2><i data-lucide="book-open-text"></i> 최근 블로그</h2><p>기록해 둔 생각의 조각들</p></div><button class="text-button" id="write-post"><i data-lucide="square-pen"></i> 글쓰기</button></div>
+					<div id="post-list">
+						<article class="post"><div class="post-date"><strong>28</strong><span>SEP</span></div><div><p class="post-title">파도 소리를 따라 걷던 오후</p><span class="post-meta">일상 · 3분 읽기</span></div></article>
+						<article class="post"><div class="post-date"><strong>21</strong><span>SEP</span></div><div><p class="post-title">요즘의 작은 기쁨을 모아</p><span class="post-meta">기록 · 2분 읽기</span></div></article>
+					</div>
+				</section>
+
+				<section class="panel" id="notes">
+					<div class="section-heading"><div><h2><i data-lucide="notebook-pen"></i> 빠른 메모</h2><p>떠오른 생각을 잠시 맡겨두기</p></div></div>
+					<textarea class="note-area" id="note-area" aria-label="빠른 메모" placeholder="잊기 전에 적어두고 싶은 것..."></textarea>
+					<div class="note-footer"><span>이 브라우저에 자동 저장돼요</span><span class="saved-status" id="saved-status"><i data-lucide="check"></i> 저장됨</span></div>
+				</section>
+
+				<section class="panel" id="news">
+					<div class="section-heading"><div><h2><i data-lucide="newspaper"></i> 오늘의 읽을거리</h2><p>바다 건너 전해온 이야기</p></div><button class="text-button" id="refresh-news" aria-label="뉴스 목록 새로고침"><i data-lucide="refresh-cw"></i></button></div>
+					<div class="news-list">
+						<article class="news-item"><span class="news-source"><i class="source-dot"></i> 바다와 환경</span><a href="https://www.nationalgeographic.com/environment" target="_blank" rel="noreferrer">바다가 보내는 신호, 해양 생태계에서 발견한 변화</a><p class="news-time">오늘의 추천 읽을거리</p></article>
+						<article class="news-item"><span class="news-source"><i class="source-dot" style="background:#5c9e86"></i> 느린 생활</span><a href="https://www.theguardian.com/lifeandstyle" target="_blank" rel="noreferrer">조금 느리게 살아도 괜찮은 이유</a><p class="news-time">오늘의 추천 읽을거리</p></article>
+					</div>
+				</section>
+			</div>
+
+			<section class="connect-row" aria-label="Google 서비스 연결">
+				<span class="google-mark">G</span><div class="connect-copy"><strong>Google 캘린더와 연결하기</strong><span>OAuth 설정을 마치면 일정 동기화를 사용할 수 있어요.</span></div><button class="connect-button" id="connect-google">연결 설정</button>
+			</section>
+		</main>
+		<footer class="footer"><span>나만의 속도로, 오늘의 파도를 타요.</span><span>MADE FOR YOUR EVERYDAY</span></footer>
+	</div>
+	<dialog id="info-dialog"><h2 id="dialog-title">안내</h2><p id="dialog-copy"></p><div class="dialog-actions"><button id="dialog-close">닫기</button><button id="dialog-ok">확인</button></div></dialog>
+	<div class="toast" id="toast" role="status" aria-live="polite"></div>
+	<script>
+		const icons = () => window.lucide?.createIcons();
+		const localDate = (date) => new Date(date.getFullYear(), date.getMonth(), date.getDate());
+		const today = localDate(new Date());
+		const dateKey = (date) => `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, "0")}-${String(date.getDate()).padStart(2, "0")}`;
+		const initialTasks = [
+			{ text: "기획안 초안 마무리하기", tag: "중요", done: false },
+			{ text: "점심 산책하고 커피 사오기", tag: "일상", done: false },
+			{ text: "엄마에게 안부 전화하기", tag: "개인", done: true },
+			{ text: "읽던 책 20페이지 읽기", tag: "여유", done: false }
+		];
+		let tasks = JSON.parse(localStorage.getItem("pado-tasks") || "null") || initialTasks;
+		let weekOffset = 0;
+		let events = JSON.parse(localStorage.getItem("pado-events") || "null") || {};
+		const formatDate = new Intl.DateTimeFormat("ko-KR", { month: "long", day: "numeric", weekday: "long" });
+		const weekdays = ["일", "월", "화", "수", "목", "금", "토"];
+		document.getElementById("today-label").textContent = new Intl.DateTimeFormat("en-US", { weekday: "long", month: "long", day: "2-digit" }).format(today).toUpperCase();
+
+		function renderWeek() {
+			const weekStart = new Date(today);
+			weekStart.setDate(today.getDate() - today.getDay() + weekOffset * 7);
+			const labelDate = weekOffset === 0 ? today : weekStart;
+			document.getElementById("month-label").textContent = `${labelDate.getFullYear()}년 ${labelDate.getMonth() + 1}월`;
+			const week = document.getElementById("week-days");
+			week.replaceChildren();
+			for (let index = 0; index < 7; index++) {
+				const date = new Date(weekStart);
+				date.setDate(weekStart.getDate() + index);
+				const day = document.createElement("div");
+				day.className = `day${dateKey(date) === dateKey(today) ? " today" : ""}`;
+				day.innerHTML = `<span>${weekdays[date.getDay()]}</span><strong>${date.getDate()}</strong><span class="day-dot" style="visibility:${events[dateKey(date)]?.length ? "visible" : "hidden"}"></span>`;
+				week.append(day);
+			}
+			renderAgenda(weekStart);
+			icons();
+		}
+
+		function renderAgenda(weekStart) {
+			const agenda = document.getElementById("agenda");
+			agenda.replaceChildren();
+			const agendaDate = new Date(weekStart);
+			agendaDate.setDate(weekStart.getDate() + Math.min(today.getDay(), 6));
+			const key = dateKey(agendaDate);
+			const dayEvents = events[key] || (key === dateKey(today) ? [
+				{ time: "09:30", title: "주간 기획 미팅", detail: "온라인 · 팀 프로젝트" },
+				{ time: "14:00", title: "콘텐츠 초안 검토", detail: "작업실 · 개인 일정", coral: true }
+			] : []);
+			if (!dayEvents.length) {
+				const empty = document.createElement("div");
+				empty.className = "agenda-empty";
+				empty.style.gridColumn = "1 / -1";
+				empty.textContent = `${formatDate.format(agendaDate)} · 등록된 일정이 없어요`;
+				agenda.append(empty);
+				return;
+			}
+			dayEvents.forEach((item) => {
+				const time = document.createElement("div");
+				time.className = "agenda-time";
+				time.textContent = item.time;
+				const event = document.createElement("div");
+				event.className = `event${item.coral ? " coral" : ""}`;
+				event.innerHTML = `<strong></strong><span></span>`;
+				event.querySelector("strong").textContent = item.title;
+				event.querySelector("span").textContent = item.detail || "나의 일정";
+				agenda.append(time, event);
+			});
+		}
+
+		function renderTasks() {
+			const list = document.getElementById("task-list");
+			list.replaceChildren();
+			tasks.forEach((task, index) => {
+				const row = document.createElement("div");
+				row.className = "task-row";
+				const check = document.createElement("input");
+				check.type = "checkbox";
+				check.className = "task-check";
+				check.checked = task.done;
+				check.setAttribute("aria-label", `${task.text} 완료`);
+				check.addEventListener("change", () => { tasks[index].done = check.checked; saveTasks(); });
+				const title = document.createElement("span");
+				title.className = `task-title${task.done ? " done" : ""}`;
+				title.textContent = task.text;
+				const tag = document.createElement("span");
+				tag.className = `task-tag${task.tag === "중요" ? " important" : ""}`;
+				tag.textContent = task.tag;
+				const remove = document.createElement("button");
+				remove.className = "delete-task";
+				remove.setAttribute("aria-label", `${task.text} 삭제`);
+				remove.innerHTML = '<i data-lucide="x"></i>';
+				remove.addEventListener("click", () => { tasks.splice(index, 1); saveTasks(); });
+				row.append(check, title, tag, remove);
+				list.append(row);
+			});
+			document.getElementById("task-count").textContent = tasks.filter((task) => !task.done).length;
+			icons();
+		}
+
+		function saveTasks() {
+			localStorage.setItem("pado-tasks", JSON.stringify(tasks));
+			renderTasks();
+		}
+
+		document.getElementById("task-form").addEventListener("submit", (event) => {
+			event.preventDefault();
+			const input = document.getElementById("task-input");
+			const text = input.value.trim();
+			if (!text) return;
+			tasks.unshift({ text, tag: "할 일", done: false });
+			input.value = "";
+			saveTasks();
+			showToast("할 일을 추가했어요.");
+		});
+		document.getElementById("note-area").value = localStorage.getItem("pado-note") || "";
+		let noteTimer;
+		document.getElementById("note-area").addEventListener("input", (event) => {
+			document.getElementById("saved-status").innerHTML = '<i data-lucide="cloud-upload"></i> 저장 중';
+			icons();
+			clearTimeout(noteTimer);
+			noteTimer = setTimeout(() => {
+				localStorage.setItem("pado-note", event.target.value);
+				document.getElementById("saved-status").innerHTML = '<i data-lucide="check"></i> 저장됨';
+				icons();
+			}, 350);
+		});
+		document.getElementById("prev-week").addEventListener("click", () => { weekOffset--; renderWeek(); });
+		document.getElementById("next-week").addEventListener("click", () => { weekOffset++; renderWeek(); });
+
+		const dialog = document.getElementById("info-dialog");
+		function showDialog(title, copy, confirm = "확인") {
+			document.getElementById("dialog-title").textContent = title;
+			document.getElementById("dialog-copy").textContent = copy;
+			document.getElementById("dialog-ok").textContent = confirm;
+			dialog.showModal();
+		}
+		document.getElementById("dialog-close").addEventListener("click", () => dialog.close());
+		document.getElementById("dialog-ok").addEventListener("click", () => dialog.close());
+		document.getElementById("connect-google").addEventListener("click", () => showDialog("Google 캘린더 연결", "실제 동기화를 시작하려면 Google Cloud에서 OAuth 클라이언트와 캘린더 API를 설정해야 해요. 현재 일정과 메모는 이 브라우저에 저장됩니다."));
+		document.getElementById("add-event").addEventListener("click", () => {
+			const title = window.prompt("추가할 일정의 이름을 적어주세요.");
+			if (!title?.trim()) return;
+			const time = window.prompt("시간을 입력해주세요. (예: 15:00)", "15:00");
+			if (!time?.trim()) return;
+			const date = new Date(today);
+			date.setDate(today.getDate() - today.getDay() + weekOffset * 7 + today.getDay());
+			const key = dateKey(date);
+			events[key] = [...(events[key] || []), { time: time.trim(), title: title.trim(), detail: "나의 일정" }].sort((a, b) => a.time.localeCompare(b.time));
+			localStorage.setItem("pado-events", JSON.stringify(events));
+			renderWeek();
+			showToast("일정을 추가했어요.");
+		});
+		document.getElementById("write-post").addEventListener("click", () => showDialog("블로그 글쓰기", "블로그 편집기는 아직 연결되지 않았어요. 기존 글 목록에 글쓰기 링크를 연결해 사용할 수 있습니다."));
+		document.getElementById("refresh-news").addEventListener("click", () => showToast("추천 읽을거리를 확인했어요."));
+		let toastTimer;
+		function showToast(message) {
+			const toast = document.getElementById("toast");
+			toast.textContent = message;
+			toast.classList.add("show");
+			clearTimeout(toastTimer);
+			toastTimer = setTimeout(() => toast.classList.remove("show"), 2200);
+		}
+		renderWeek();
+		renderTasks();
+		icons();
+	</script>
+</body>
+</html>
