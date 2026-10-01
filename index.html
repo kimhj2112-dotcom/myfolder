@@ -68,17 +68,22 @@
 		.icon-button:hover { border-color: #b5d3c5; background: #f1f7f1; }
 		.icon-button i { width: 15px; height: 15px; }
 		.week { display: grid; grid-template-columns: repeat(7, minmax(0,1fr)); gap: 7px; }
-		.day { min-width: 0; display: flex; flex-direction: column; align-items: center; gap: 9px; padding: 10px 3px 11px; border-radius: 5px; color: #85928d; font-size: 10px; }
+		.day { width: 100%; min-width: 0; display: flex; flex-direction: column; align-items: center; gap: 9px; padding: 10px 3px 11px; border: 0; border-radius: 5px; background: transparent; color: #85928d; font: inherit; font-size: 10px; cursor: pointer; }
 		.day strong { color: var(--ink); font-size: 13px; font-weight: 500; }
 		.day.today { background: #eaf4ee; color: var(--sea); }
+		.day.selected { box-shadow: inset 0 0 0 1px #8eb8a6; }
 		.day.today strong { display: grid; place-items: center; width: 26px; height: 26px; margin: -6px 0 -6px; border-radius: 50%; background: var(--sea); color: white; }
 		.day-dot { width: 4px; height: 4px; border-radius: 50%; background: var(--coral); }
 		.agenda { display: grid; grid-template-columns: 48px minmax(0,1fr); gap: 0 12px; margin-top: 17px; }
 		.agenda-time { padding: 11px 0; border-top: 1px solid #eef1ec; color: #84928c; font-size: 10px; }
-		.event { margin: 5px 0; padding: 8px 11px; border-left: 2px solid #71a995; border-radius: 0 4px 4px 0; background: #eff6f0; }
+		.event { display: flex; align-items: center; justify-content: space-between; gap: 8px; min-width: 0; margin: 5px 0; padding: 6px 7px 6px 11px; border-left: 2px solid #71a995; border-radius: 0 4px 4px 0; background: #eff6f0; }
 		.event.coral { border-color: var(--coral); background: #fbf0eb; }
-		.event strong { display: block; font-size: 11px; font-weight: 600; }
-		.event span { display: block; margin-top: 3px; color: var(--muted); font-size: 10px; }
+		.event-copy { min-width: 0; }
+		.event-copy strong { display: block; overflow-wrap: anywhere; font-size: 11px; font-weight: 600; }
+		.event-copy span { display: block; margin-top: 3px; color: var(--muted); font-size: 10px; }
+		.event-delete { flex: 0 0 auto; width: 26px; height: 26px; display: grid; place-items: center; border: 0; border-radius: 4px; background: transparent; color: #82918a; cursor: pointer; }
+		.event-delete:hover { background: rgba(22,121,111,.1); color: var(--sea); }
+		.event-delete i { width: 14px; height: 14px; }
 		.agenda-empty { padding: 13px 0; color: #a0aaa4; font-size: 11px; }
 		.task-panel { min-height: 300px; }
 		.task-count { min-width: 20px; height: 20px; display: inline-grid; place-items: center; margin-left: 2px; border-radius: 50%; background: #f8eee5; color: #be7358; font-size: 10px; }
@@ -105,18 +110,33 @@
 		.post-date span { margin-top: 3px; font-size: 8px; }
 		.post-title { margin: 1px 0 5px; font-size: 11px; font-weight: 600; line-height: 1.5; }
 		.post-meta { color: #94a09a; font-size: 9px; }
-		.note-area { width: 100%; min-height: 144px; resize: vertical; padding: 11px 12px; border: 1px solid #edf0e9; border-radius: 4px; outline: none; background: #fcfcf8; color: #405b53; font-size: 11px; line-height: 1.8; }
+		.notes-workspace { display: grid; grid-template-columns: minmax(92px, .75fr) minmax(0, 1.5fr); gap: 11px; min-height: 160px; }
+		.note-list { display: grid; align-content: start; gap: 5px; max-height: 172px; overflow-y: auto; }
+		.note-select { width: 100%; min-width: 0; padding: 8px; border: 1px solid transparent; border-radius: 4px; background: #f6f8f3; text-align: left; cursor: pointer; }
+		.note-select:hover, .note-select.active { border-color: #c6dbcf; background: #edf4ee; }
+		.note-select strong, .note-select span { display: block; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+		.note-select strong { font-size: 10px; font-weight: 600; }
+		.note-select span { margin-top: 4px; color: #94a09a; font-size: 9px; }
+		.note-actions { display: flex; align-items: center; gap: 10px; }
+		.note-delete:disabled { opacity: .45; cursor: not-allowed; }
+		.note-content { display: grid; grid-template-rows: 32px minmax(78px, 1fr) auto; align-content: start; gap: 7px; min-width: 0; }
+		.note-content[hidden], .note-empty[hidden] { display: none; }
+		.note-title { width: 100%; min-width: 0; height: 32px; padding: 0 9px; border: 1px solid #edf0e9; border-radius: 4px; outline: none; background: #fcfcf8; color: var(--ink); font-size: 11px; }
+		.note-title:focus { border-color: #8eb8a6; }
+		.note-area { width: 100%; min-width: 0; min-height: 78px; resize: vertical; padding: 9px; border: 1px solid #edf0e9; border-radius: 4px; outline: none; background: #fcfcf8; color: #405b53; font-size: 11px; line-height: 1.7; }
+		.note-area:disabled, .note-title:disabled { background: #f8f9f5; }
+		.note-empty { display: grid; place-items: center; min-height: 150px; padding: 16px; color: #94a09a; font-size: 10px; text-align: center; }
 		.note-footer { display: flex; justify-content: space-between; gap: 8px; margin-top: 9px; color: #9aa69f; font-size: 9px; }
 		.saved-status { display: inline-flex; align-items: center; gap: 4px; color: var(--sea); }
 		.saved-status i { width: 12px; height: 12px; }
-		.news-list { min-height: 126px; }
-		.news-item { padding: 12px 0; animation: news-enter .28s ease both; }
+		.news-list { display: grid; grid-template-rows: repeat(5, minmax(30px, auto)); min-height: 150px; }
+		.news-item { display: flex; align-items: center; gap: 7px; min-width: 0; padding: 5px 0; border-bottom: 1px solid #eef1ec; animation: news-enter .28s ease both; }
 		.news-item:last-child { border-bottom: 0; }
-		.news-source { display: flex; align-items: center; gap: 6px; color: #9a8270; font-size: 9px; }
+		.news-number { flex: 0 0 18px; color: #9aa69f; font-size: 9px; font-variant-numeric: tabular-nums; }
+		.news-source { display: flex; align-items: center; gap: 5px; flex: 0 1 72px; min-width: 0; overflow: hidden; color: #9a8270; font-size: 8px; text-overflow: ellipsis; white-space: nowrap; }
 		.source-dot { width: 6px; height: 6px; border-radius: 50%; background: var(--coral); }
-		.news-item a { display: block; margin-top: 5px; font-size: 11px; font-weight: 600; line-height: 1.55; }
-		.news-item a:hover { color: var(--sea); }
-		.news-time { margin-top: 4px; color: #9aa69f; font-size: 9px; }
+		.news-headline { flex: 1; min-width: 0; overflow: hidden; color: var(--ink); font-size: 10px; font-weight: 600; text-overflow: ellipsis; white-space: nowrap; }
+		.news-headline:hover { color: var(--sea); }
 		.news-refresh:disabled { opacity: .55; cursor: wait; }
 		.news-controls { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding-top: 10px; border-top: 1px solid #eef1ec; }
 		.news-control-group { display: flex; align-items: center; gap: 6px; }
@@ -141,6 +161,12 @@
 		.dialog-actions { display: flex; justify-content: flex-end; gap: 8px; margin-top: 19px; }
 		.dialog-actions button { padding: 8px 13px; border: 1px solid var(--line); border-radius: 4px; background: white; cursor: pointer; font-size: 11px; }
 		.dialog-actions button:last-child { border-color: var(--sea); background: var(--sea); color: white; }
+		.event-form { display: grid; gap: 13px; }
+		.event-form h2 { margin: 0; }
+		.event-fields { display: grid; grid-template-columns: minmax(0, 1.5fr) minmax(100px, 1fr); gap: 10px; }
+		.event-field { display: grid; gap: 6px; color: var(--muted); font-size: 11px; }
+		.event-field input { width: 100%; min-width: 0; height: 38px; padding: 0 9px; border: 1px solid var(--line); border-radius: 4px; outline: none; background: #fbfcf9; color: var(--ink); }
+		.event-field input:focus { border-color: #8eb8a6; }
 		@media (max-width: 960px) {
 			.shell { padding: 0 24px 40px; }
 			.nav { gap: 16px; margin-right: 10px; }
@@ -167,6 +193,7 @@
 			.connect-copy span { line-height: 1.5; }
 			.connect-button { padding: 7px 8px; }
 			.footer { padding-bottom: 58px; }
+			.event-fields { grid-template-columns: 1fr; }
 		}
 		@media (prefers-reduced-motion: reduce) { *, *::before, *::after { scroll-behavior: auto !important; transition-duration: .01ms !important; } }
 	</style>
@@ -231,9 +258,16 @@
 				</section>
 
 				<section class="panel" id="notes">
-					<div class="section-heading"><div><h2><i data-lucide="notebook-pen"></i> 빠른 메모</h2><p>떠오른 생각을 잠시 맡겨두기</p></div></div>
-					<textarea class="note-area" id="note-area" aria-label="빠른 메모" placeholder="잊기 전에 적어두고 싶은 것..."></textarea>
-					<div class="note-footer"><span>이 브라우저에 자동 저장돼요</span><span class="saved-status" id="saved-status"><i data-lucide="check"></i> 저장됨</span></div>
+					<div class="section-heading"><div><h2><i data-lucide="notebook-pen"></i> 나의 노트</h2><p id="note-count">0개의 노트</p></div><div class="note-actions"><button class="text-button note-delete" id="note-delete" aria-label="선택한 노트 삭제" title="선택한 노트 삭제" disabled><i data-lucide="trash-2"></i></button><button class="text-button" id="note-add"><i data-lucide="plus"></i> 새 노트</button></div></div>
+					<div class="notes-workspace">
+						<div class="note-list" id="note-list" aria-label="저장된 노트"></div>
+						<div class="note-content" id="note-content" hidden>
+							<input class="note-title" id="note-title" aria-label="노트 제목" maxlength="80" placeholder="노트 제목">
+							<textarea class="note-area" id="note-area" aria-label="노트 내용" placeholder="내용을 적어보세요..."></textarea>
+							<div class="note-footer"><span>이 브라우저에 자동 저장돼요</span><span class="saved-status" id="saved-status"><i data-lucide="check"></i> 저장됨</span></div>
+						</div>
+						<div class="note-empty" id="note-empty">새 노트를 만들어 생각을 따로 기록해 보세요.</div>
+					</div>
 				</section>
 
 				<section class="panel" id="news">
@@ -241,7 +275,7 @@
 					<div class="news-list" id="news-list" aria-live="polite"></div>
 					<div class="news-controls" aria-label="뉴스 슬라이드 조작">
 						<div class="news-control-group"><button class="news-control" id="news-prev" aria-label="이전 뉴스"><i data-lucide="chevron-left"></i></button><button class="news-control" id="news-toggle" aria-label="자동 넘김 일시정지"><i data-lucide="pause"></i></button><button class="news-control" id="news-next" aria-label="다음 뉴스"><i data-lucide="chevron-right"></i></button></div>
-						<span class="news-counter" id="news-counter" aria-label="현재 뉴스 번호">01 / 04</span>
+						<span class="news-counter" id="news-counter" aria-label="표시 중인 뉴스 범위">01-05 / 05</span>
 					</div>
 				</section>
 			</div>
@@ -253,6 +287,17 @@
 		<footer class="footer"><span>나만의 속도로, 오늘의 파도를 타요.</span><span>MADE FOR YOUR EVERYDAY</span></footer>
 	</div>
 	<dialog id="info-dialog"><h2 id="dialog-title">안내</h2><p id="dialog-copy"></p><div class="dialog-actions"><button id="dialog-close">닫기</button><button id="dialog-ok">확인</button></div></dialog>
+	<dialog id="event-dialog">
+		<form class="event-form" id="event-form">
+			<h2>새 일정</h2>
+			<label class="event-field" for="event-title">일정 이름<input id="event-title" name="title" type="text" maxlength="80" placeholder="예: 팀 회의" required></label>
+			<div class="event-fields">
+				<label class="event-field" for="event-date">날짜<input id="event-date" name="date" type="date" required></label>
+				<label class="event-field" for="event-time">시간<input id="event-time" name="time" type="time" required></label>
+			</div>
+			<div class="dialog-actions"><button id="cancel-event" type="button">취소</button><button type="submit">일정 저장</button></div>
+		</form>
+	</dialog>
 	<div class="toast" id="toast" role="status" aria-live="polite"></div>
 	<script>
 		const icons = () => window.lucide?.createIcons();
@@ -267,6 +312,7 @@
 		];
 		let tasks = JSON.parse(localStorage.getItem("pado-tasks") || "null") || initialTasks;
 		let weekOffset = 0;
+		let selectedDate = new Date(today);
 		let events = JSON.parse(localStorage.getItem("pado-events") || "null") || {};
 		const formatDate = new Intl.DateTimeFormat("ko-KR", { month: "long", day: "numeric", weekday: "long" });
 		const weekdays = ["일", "월", "화", "수", "목", "금", "토"];
@@ -282,22 +328,29 @@
 			for (let index = 0; index < 7; index++) {
 				const date = new Date(weekStart);
 				date.setDate(weekStart.getDate() + index);
-				const day = document.createElement("div");
-				day.className = `day${dateKey(date) === dateKey(today) ? " today" : ""}`;
-				day.innerHTML = `<span>${weekdays[date.getDay()]}</span><strong>${date.getDate()}</strong><span class="day-dot" style="visibility:${events[dateKey(date)]?.length ? "visible" : "hidden"}"></span>`;
+				const dayKey = dateKey(date);
+				const isToday = dayKey === dateKey(today);
+				const isSelected = dayKey === dateKey(selectedDate);
+				const day = document.createElement("button");
+				day.type = "button";
+				day.className = `day${isToday ? " today" : ""}${isSelected ? " selected" : ""}`;
+				day.setAttribute("aria-label", formatDate.format(date));
+				day.setAttribute("aria-pressed", String(isSelected));
+				day.innerHTML = `<span>${weekdays[date.getDay()]}</span><strong>${date.getDate()}</strong><span class="day-dot" style="visibility:${events[dayKey]?.length ? "visible" : "hidden"}"></span>`;
+				day.addEventListener("click", () => { selectedDate = new Date(date); renderWeek(); });
 				week.append(day);
 			}
-			renderAgenda(weekStart);
+			renderAgenda(selectedDate);
 			icons();
 		}
 
-		function renderAgenda(weekStart) {
+		function renderAgenda(date) {
 			const agenda = document.getElementById("agenda");
 			agenda.replaceChildren();
-			const agendaDate = new Date(weekStart);
-			agendaDate.setDate(weekStart.getDate() + Math.min(today.getDay(), 6));
+			const agendaDate = localDate(date);
 			const key = dateKey(agendaDate);
-			const dayEvents = events[key] || (key === dateKey(today) ? [
+			const hasSavedEvents = Array.isArray(events[key]);
+			const dayEvents = hasSavedEvents ? events[key] : (key === dateKey(today) ? [
 				{ time: "09:30", title: "주간 기획 미팅", detail: "온라인 · 팀 프로젝트" },
 				{ time: "14:00", title: "콘텐츠 초안 검토", detail: "작업실 · 개인 일정", coral: true }
 			] : []);
@@ -309,15 +362,33 @@
 				agenda.append(empty);
 				return;
 			}
-			dayEvents.forEach((item) => {
+			dayEvents.forEach((item, index) => {
 				const time = document.createElement("div");
 				time.className = "agenda-time";
 				time.textContent = item.time;
 				const event = document.createElement("div");
 				event.className = `event${item.coral ? " coral" : ""}`;
-				event.innerHTML = `<strong></strong><span></span>`;
-				event.querySelector("strong").textContent = item.title;
-				event.querySelector("span").textContent = item.detail || "나의 일정";
+				const copy = document.createElement("div");
+				copy.className = "event-copy";
+				copy.innerHTML = `<strong></strong><span></span>`;
+				copy.querySelector("strong").textContent = item.title;
+				copy.querySelector("span").textContent = item.detail || "나의 일정";
+				event.append(copy);
+				if (hasSavedEvents) {
+					const remove = document.createElement("button");
+					remove.type = "button";
+					remove.className = "event-delete";
+					remove.setAttribute("aria-label", `${item.title} 일정 삭제`);
+					remove.title = "일정 삭제";
+					remove.innerHTML = '<i data-lucide="trash-2"></i>';
+					remove.addEventListener("click", () => showDialog("일정 삭제", `${formatDate.format(agendaDate)} ${item.time} · ${item.title} 일정을 삭제할까요?`, "삭제", () => {
+						events[key].splice(index, 1);
+						localStorage.setItem("pado-events", JSON.stringify(events));
+						renderWeek();
+						showToast("일정을 삭제했어요.");
+					}));
+					event.append(remove);
+				}
 				agenda.append(time, event);
 			});
 		}
@@ -367,42 +438,156 @@
 			saveTasks();
 			showToast("할 일을 추가했어요.");
 		});
-		document.getElementById("note-area").value = localStorage.getItem("pado-note") || "";
+		function createNoteId() {
+			return window.crypto?.randomUUID?.() || `${Date.now()}-${Math.random().toString(16).slice(2)}`;
+		}
+		const savedNotes = JSON.parse(localStorage.getItem("pado-notes") || "null");
+		let notes = Array.isArray(savedNotes) ? savedNotes : [];
+		if (!Array.isArray(savedNotes)) {
+			const oldNote = localStorage.getItem("pado-note") || "";
+			if (oldNote.trim()) {
+				notes = [{ id: createNoteId(), title: "빠른 메모", content: oldNote, updatedAt: new Date().toISOString() }];
+				localStorage.setItem("pado-notes", JSON.stringify(notes));
+				localStorage.removeItem("pado-note");
+			}
+		}
+		let activeNoteId = notes[0]?.id || null;
 		let noteTimer;
-		document.getElementById("note-area").addEventListener("input", (event) => {
+		function renderNoteList() {
+			const list = document.getElementById("note-list");
+			list.replaceChildren();
+			[...notes].sort((first, second) => new Date(second.updatedAt) - new Date(first.updatedAt)).forEach((note) => {
+				const button = document.createElement("button");
+				button.type = "button";
+				button.className = `note-select${note.id === activeNoteId ? " active" : ""}`;
+				button.setAttribute("aria-pressed", String(note.id === activeNoteId));
+				button.innerHTML = "<strong></strong><span></span>";
+				button.querySelector("strong").textContent = note.title || "제목 없는 노트";
+				button.querySelector("span").textContent = note.updatedAt ? new Intl.DateTimeFormat("ko-KR", { month: "numeric", day: "numeric" }).format(new Date(note.updatedAt)) : "저장됨";
+				button.addEventListener("click", () => { activeNoteId = note.id; renderNotes(); });
+				list.append(button);
+			});
+			document.getElementById("note-count").textContent = `${notes.length}개의 노트`;
+		}
+		function renderNotes() {
+			renderNoteList();
+			const note = notes.find((item) => item.id === activeNoteId);
+			const editor = document.getElementById("note-content");
+			const empty = document.getElementById("note-empty");
+			editor.hidden = !note;
+			empty.hidden = Boolean(note);
+			document.getElementById("note-delete").disabled = !note;
+			document.getElementById("note-title").disabled = !note;
+			document.getElementById("note-area").disabled = !note;
+			if (!note) return;
+			document.getElementById("note-title").value = note.title;
+			document.getElementById("note-area").value = note.content;
+			document.getElementById("saved-status").innerHTML = '<i data-lucide="check"></i> 저장됨';
+			icons();
+		}
+		function saveNotes() {
+			clearTimeout(noteTimer);
+			localStorage.setItem("pado-notes", JSON.stringify(notes));
+			const status = document.getElementById("saved-status");
+			if (activeNoteId) status.innerHTML = '<i data-lucide="check"></i> 저장됨';
+			renderNoteList();
+			icons();
+		}
+		function queueNoteSave() {
+			const note = notes.find((item) => item.id === activeNoteId);
+			if (!note) return;
+			note.title = document.getElementById("note-title").value.trim();
+			note.content = document.getElementById("note-area").value;
+			note.updatedAt = new Date().toISOString();
 			document.getElementById("saved-status").innerHTML = '<i data-lucide="cloud-upload"></i> 저장 중';
+			renderNoteList();
 			icons();
 			clearTimeout(noteTimer);
-			noteTimer = setTimeout(() => {
-				localStorage.setItem("pado-note", event.target.value);
-				document.getElementById("saved-status").innerHTML = '<i data-lucide="check"></i> 저장됨';
-				icons();
-			}, 350);
+			noteTimer = setTimeout(saveNotes, 350);
+		}
+		document.getElementById("note-add").addEventListener("click", () => {
+			const note = { id: createNoteId(), title: "새 노트", content: "", updatedAt: new Date().toISOString() };
+			notes.unshift(note);
+			activeNoteId = note.id;
+			saveNotes();
+			renderNotes();
+			document.getElementById("note-title").focus();
 		});
-		document.getElementById("prev-week").addEventListener("click", () => { weekOffset--; renderWeek(); });
-		document.getElementById("next-week").addEventListener("click", () => { weekOffset++; renderWeek(); });
+		document.getElementById("note-delete").addEventListener("click", () => {
+			const note = notes.find((item) => item.id === activeNoteId);
+			if (!note) return;
+			showDialog("노트 삭제", `“${note.title || "제목 없는 노트"}” 노트를 삭제할까요?`, "삭제", () => {
+				notes = notes.filter((item) => item.id !== activeNoteId);
+				activeNoteId = notes[0]?.id || null;
+				saveNotes();
+				renderNotes();
+				showToast("노트를 삭제했어요.");
+			});
+		});
+		document.getElementById("note-title").addEventListener("input", queueNoteSave);
+		document.getElementById("note-area").addEventListener("input", queueNoteSave);
+		window.addEventListener("beforeunload", saveNotes);
+		renderNotes();
+		function changeWeek(direction) {
+			const selectedWeekday = selectedDate.getDay();
+			weekOffset += direction;
+			const weekStart = new Date(today);
+			weekStart.setDate(today.getDate() - today.getDay() + weekOffset * 7);
+			selectedDate = new Date(weekStart);
+			selectedDate.setDate(weekStart.getDate() + selectedWeekday);
+			renderWeek();
+		}
+		document.getElementById("prev-week").addEventListener("click", () => changeWeek(-1));
+		document.getElementById("next-week").addEventListener("click", () => changeWeek(1));
 
 		const dialog = document.getElementById("info-dialog");
-		function showDialog(title, copy, confirm = "확인") {
+		let dialogAction = null;
+		dialog.addEventListener("close", () => { dialogAction = null; });
+		function showDialog(title, copy, confirm = "확인", action = null) {
 			document.getElementById("dialog-title").textContent = title;
 			document.getElementById("dialog-copy").textContent = copy;
 			document.getElementById("dialog-ok").textContent = confirm;
+			dialogAction = action;
 			dialog.showModal();
 		}
 		document.getElementById("dialog-close").addEventListener("click", () => dialog.close());
-		document.getElementById("dialog-ok").addEventListener("click", () => dialog.close());
+		document.getElementById("dialog-ok").addEventListener("click", () => {
+			const action = dialogAction;
+			dialog.close();
+			action?.();
+		});
 		document.getElementById("connect-google").addEventListener("click", () => showDialog("Google 캘린더 연결", "실제 동기화를 시작하려면 Google Cloud에서 OAuth 클라이언트와 캘린더 API를 설정해야 해요. 현재 일정과 메모는 이 브라우저에 저장됩니다."));
+		const eventDialog = document.getElementById("event-dialog");
+		const eventForm = document.getElementById("event-form");
 		document.getElementById("add-event").addEventListener("click", () => {
-			const title = window.prompt("추가할 일정의 이름을 적어주세요.");
-			if (!title?.trim()) return;
-			const time = window.prompt("시간을 입력해주세요. (예: 15:00)", "15:00");
-			if (!time?.trim()) return;
-			const date = new Date(today);
-			date.setDate(today.getDate() - today.getDay() + weekOffset * 7 + today.getDay());
+			eventForm.reset();
+			document.getElementById("event-date").value = dateKey(selectedDate);
+			document.getElementById("event-time").value = "15:00";
+			eventDialog.showModal();
+			document.getElementById("event-title").focus();
+		});
+		document.getElementById("cancel-event").addEventListener("click", () => eventDialog.close());
+		eventForm.addEventListener("submit", (event) => {
+			event.preventDefault();
+			const title = document.getElementById("event-title").value.trim();
+			const dateValue = document.getElementById("event-date").value;
+			const time = document.getElementById("event-time").value;
+			if (!title || !dateValue || !time) return;
+			const [year, month, day] = dateValue.split("-").map(Number);
+			const date = new Date(year, month - 1, day);
 			const key = dateKey(date);
-			events[key] = [...(events[key] || []), { time: time.trim(), title: title.trim(), detail: "나의 일정" }].sort((a, b) => a.time.localeCompare(b.time));
+			events[key] = [...(events[key] || []), { time, title, detail: "나의 일정" }].sort((a, b) => a.time.localeCompare(b.time));
 			localStorage.setItem("pado-events", JSON.stringify(events));
+			selectedDate = date;
+			const currentWeekStart = new Date(today);
+			currentWeekStart.setDate(today.getDate() - today.getDay());
+			const selectedWeekStart = new Date(date);
+			selectedWeekStart.setDate(date.getDate() - date.getDay());
+			const utcDay = (value) => Date.UTC(value.getFullYear(), value.getMonth(), value.getDate());
+			weekOffset = Math.round((utcDay(selectedWeekStart) - utcDay(currentWeekStart)) / (7 * 24 * 60 * 60 * 1000));
 			renderWeek();
+			eventDialog.close();
+			eventForm.reset();
 			showToast("일정을 추가했어요.");
 		});
 		document.getElementById("write-post").addEventListener("click", () => showDialog("블로그 글쓰기", "블로그 편집기는 아직 연결되지 않았어요. 기존 글 목록에 글쓰기 링크를 연결해 사용할 수 있습니다."));
@@ -410,7 +595,8 @@
 			{ source: "바다와 환경", title: "바다가 보내는 신호, 해양 생태계에서 발견한 변화", detail: "내셔널지오그래픽 · 환경", href: "https://www.nationalgeographic.com/environment", color: "#dc795e" },
 			{ source: "느린 생활", title: "조금 느리게 살아도 괜찮은 이유", detail: "가디언 · 라이프스타일", href: "https://www.theguardian.com/lifeandstyle", color: "#5c9e86" },
 			{ source: "오늘의 발견", title: "자연을 가까이하는 작은 습관들", detail: "내셔널지오그래픽 · 자연", href: "https://www.nationalgeographic.com/nature", color: "#d1a548" },
-			{ source: "좋은 읽기", title: "마음에 여백을 만드는 주말의 기록", detail: "가디언 · 문화와 생활", href: "https://www.theguardian.com/lifeandstyle", color: "#7297a1" }
+			{ source: "좋은 읽기", title: "마음에 여백을 만드는 주말의 기록", detail: "가디언 · 문화와 생활", href: "https://www.theguardian.com/lifeandstyle", color: "#7297a1" },
+			{ source: "환경과 기술", title: "지속 가능한 내일을 위한 새로운 아이디어", detail: "내셔널지오그래픽 · 환경", href: "https://www.nationalgeographic.com/environment", color: "#8b9d72" }
 		];
 		const newsColors = ["#dc795e", "#5c9e86", "#d1a548", "#7297a1"];
 		const newsFeedUrl = "https://news.google.com/rss?hl=ko&gl=KR&ceid=KR:ko";
@@ -423,26 +609,34 @@
 		let newsLoading = false;
 		let lastNewsRequest = 0;
 		function renderNews() {
-			const item = newsItems[activeNews];
-			const article = document.createElement("article");
-			article.className = "news-item";
-			const source = document.createElement("span");
-			source.className = "news-source";
-			const dot = document.createElement("i");
-			dot.className = "source-dot";
-			dot.style.backgroundColor = item.color;
-			source.append(dot, document.createTextNode(item.source));
-			const link = document.createElement("a");
-			link.href = item.href;
-			link.target = "_blank";
-			link.rel = "noopener noreferrer";
-			link.textContent = item.title;
-			const detail = document.createElement("p");
-			detail.className = "news-time";
-			detail.textContent = item.detail;
-			article.append(source, link, detail);
-			document.getElementById("news-list").replaceChildren(article);
-			document.getElementById("news-counter").textContent = `${String(activeNews + 1).padStart(2, "0")} / ${String(newsItems.length).padStart(2, "0")}`;
+			const visibleCount = Math.min(5, newsItems.length);
+			const list = document.getElementById("news-list");
+			list.replaceChildren();
+			for (let offset = 0; offset < visibleCount; offset++) {
+				const item = newsItems[activeNews + offset];
+				const article = document.createElement("article");
+				article.className = "news-item";
+				const number = document.createElement("span");
+				number.className = "news-number";
+				number.textContent = String(activeNews + offset + 1).padStart(2, "0");
+				const link = document.createElement("a");
+				link.className = "news-headline";
+				link.href = item.href;
+				link.target = "_blank";
+				link.rel = "noopener noreferrer";
+				link.title = item.title;
+				link.textContent = item.title;
+				const source = document.createElement("span");
+				source.className = "news-source";
+				source.title = item.detail;
+				const dot = document.createElement("i");
+				dot.className = "source-dot";
+				dot.style.backgroundColor = item.color;
+				source.append(dot, document.createTextNode(item.source));
+				article.append(number, link, source);
+				list.append(article);
+			}
+			document.getElementById("news-counter").textContent = `${String(activeNews + 1).padStart(2, "0")}-${String(activeNews + visibleCount).padStart(2, "0")} / ${String(newsItems.length).padStart(2, "0")}`;
 			const toggle = document.getElementById("news-toggle");
 			toggle.setAttribute("aria-label", newsPaused ? "자동 넘김 시작" : "자동 넘김 일시정지");
 			toggle.innerHTML = `<i data-lucide="${newsPaused ? "play" : "pause"}"></i>`;
@@ -453,7 +647,9 @@
 			if (!newsPaused && !newsFocused && !document.hidden) newsTimer = setInterval(() => advanceNews(1, false), 7000);
 		}
 		function advanceNews(direction, resetTimer = true) {
-			activeNews = (activeNews + direction + newsItems.length) % newsItems.length;
+			const pageCount = Math.max(1, Math.ceil(newsItems.length / 5));
+			const currentPage = Math.floor(activeNews / 5);
+			activeNews = ((currentPage + direction + pageCount) % pageCount) * 5;
 			renderNews();
 			if (resetTimer) syncNewsTimer();
 		}
