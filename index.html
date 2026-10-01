@@ -63,16 +63,29 @@
 		.calendar-panel { min-height: 300px; }
 		.calendar-head { display: flex; align-items: center; justify-content: space-between; gap: 10px; margin: 4px 0 17px; }
 		.month-label { font-size: 13px; font-weight: 700; }
+		.calendar-toolbar { display: flex; align-items: center; gap: 8px; }
+		.calendar-mode { display: flex; gap: 2px; padding: 2px; border: 1px solid var(--line); border-radius: 5px; background: #f5f7f2; }
+		.mode-button { min-width: 27px; height: 25px; padding: 0 6px; border: 0; border-radius: 3px; background: transparent; color: #73817b; font-size: 10px; cursor: pointer; }
+		.mode-button.active { background: var(--white); color: var(--sea); box-shadow: 0 1px 3px rgba(24,59,59,.12); }
 		.calendar-controls { display: flex; align-items: center; gap: 5px; }
 		.icon-button { width: 29px; height: 29px; display: grid; place-items: center; border: 1px solid var(--line); border-radius: 5px; background: var(--white); cursor: pointer; }
 		.icon-button:hover { border-color: #b5d3c5; background: #f1f7f1; }
 		.icon-button i { width: 15px; height: 15px; }
+		.calendar-weekdays { display: grid; grid-template-columns: repeat(7, minmax(0,1fr)); gap: 3px; margin-bottom: 4px; }
+		.calendar-weekdays[hidden] { display: none; }
+		.calendar-weekdays span { padding: 4px 0; color: #85928d; font-size: 9px; text-align: center; }
 		.week { display: grid; grid-template-columns: repeat(7, minmax(0,1fr)); gap: 7px; }
+		.month-grid { gap: 3px; }
 		.day { width: 100%; min-width: 0; display: flex; flex-direction: column; align-items: center; gap: 9px; padding: 10px 3px 11px; border: 0; border-radius: 5px; background: transparent; color: #85928d; font: inherit; font-size: 10px; cursor: pointer; }
+		.month-grid .day { height: 31px; min-height: 31px; gap: 1px; padding: 3px 2px; }
 		.day strong { color: var(--ink); font-size: 13px; font-weight: 500; }
+		.month-grid .day strong { font-size: 11px; }
 		.day.today { background: #eaf4ee; color: var(--sea); }
 		.day.selected { box-shadow: inset 0 0 0 1px #8eb8a6; }
 		.day.today strong { display: grid; place-items: center; width: 26px; height: 26px; margin: -6px 0 -6px; border-radius: 50%; background: var(--sea); color: white; }
+		.month-grid .day.today strong { width: 20px; height: 20px; margin: 0; }
+		.day.other-month { color: #b3bdb7; }
+		.day.other-month strong { color: #a5b0aa; }
 		.day-dot { width: 4px; height: 4px; border-radius: 50%; background: var(--coral); }
 		.agenda { display: grid; grid-template-columns: 48px minmax(0,1fr); gap: 0 12px; margin-top: 17px; }
 		.agenda-time { padding: 11px 0; border-top: 1px solid #eef1ec; color: #84928c; font-size: 10px; }
@@ -231,10 +244,20 @@
 			<div class="dashboard-grid">
 				<section class="panel calendar-panel" id="calendar">
 					<div class="section-heading">
-						<div><h2><i data-lucide="calendar-days"></i> 이번 주 일정</h2><p>차분하게, 하나씩 흘러가요</p></div>
+						<div><h2><i data-lucide="calendar-days"></i> 캘린더 일정</h2><p>날짜를 선택해 일정을 확인하세요</p></div>
 						<button class="text-button" id="add-event"><i data-lucide="plus"></i> 일정 추가</button>
 					</div>
-					<div class="calendar-head"><span class="month-label" id="month-label">2026년 10월</span><div class="calendar-controls"><button class="icon-button" id="prev-week" aria-label="이전 주"><i data-lucide="chevron-left"></i></button><button class="icon-button" id="next-week" aria-label="다음 주"><i data-lucide="chevron-right"></i></button></div></div>
+					<div class="calendar-head">
+						<span class="month-label" id="month-label">2026년 10월</span>
+						<div class="calendar-toolbar">
+							<div class="calendar-mode" role="group" aria-label="캘린더 보기">
+								<button class="mode-button active" id="week-view" type="button" aria-pressed="true">주</button>
+								<button class="mode-button" id="month-view" type="button" aria-pressed="false">월</button>
+							</div>
+							<div class="calendar-controls"><button class="icon-button" id="prev-period" aria-label="이전 주"><i data-lucide="chevron-left"></i></button><button class="icon-button" id="next-period" aria-label="다음 주"><i data-lucide="chevron-right"></i></button></div>
+						</div>
+					</div>
+					<div class="calendar-weekdays" id="calendar-weekdays" aria-hidden="true" hidden><span>일</span><span>월</span><span>화</span><span>수</span><span>목</span><span>금</span><span>토</span></div>
 					<div class="week" id="week-days" aria-label="이번 주 날짜"></div>
 					<div class="agenda" id="agenda"></div>
 				</section>
@@ -313,33 +336,75 @@
 		let tasks = JSON.parse(localStorage.getItem("pado-tasks") || "null") || initialTasks;
 		let weekOffset = 0;
 		let selectedDate = new Date(today);
+		let calendarCursor = new Date(today);
+		let calendarView = "week";
 		let events = JSON.parse(localStorage.getItem("pado-events") || "null") || {};
 		const formatDate = new Intl.DateTimeFormat("ko-KR", { month: "long", day: "numeric", weekday: "long" });
 		const weekdays = ["일", "월", "화", "수", "목", "금", "토"];
 		document.getElementById("today-label").textContent = new Intl.DateTimeFormat("en-US", { weekday: "long", month: "long", day: "2-digit" }).format(today).toUpperCase();
 
-		function renderWeek() {
-			const weekStart = new Date(today);
-			weekStart.setDate(today.getDate() - today.getDay() + weekOffset * 7);
-			const labelDate = weekOffset === 0 ? today : weekStart;
-			document.getElementById("month-label").textContent = `${labelDate.getFullYear()}년 ${labelDate.getMonth() + 1}월`;
+		function getWeekOffset(date) {
+			const currentWeekStart = new Date(today);
+			currentWeekStart.setDate(today.getDate() - today.getDay());
+			const selectedWeekStart = localDate(date);
+			selectedWeekStart.setDate(selectedWeekStart.getDate() - selectedWeekStart.getDay());
+			const utcDay = (value) => Date.UTC(value.getFullYear(), value.getMonth(), value.getDate());
+			return Math.round((utcDay(selectedWeekStart) - utcDay(currentWeekStart)) / (7 * 24 * 60 * 60 * 1000));
+		}
+		function createCalendarDay(date, showWeekday, otherMonth = false) {
+			const dayKey = dateKey(date);
+			const isToday = dayKey === dateKey(today);
+			const isSelected = dayKey === dateKey(selectedDate);
+			const day = document.createElement("button");
+			day.type = "button";
+			day.className = `day${isToday ? " today" : ""}${isSelected ? " selected" : ""}${otherMonth ? " other-month" : ""}`;
+			day.setAttribute("aria-label", formatDate.format(date));
+			day.setAttribute("aria-pressed", String(isSelected));
+			day.innerHTML = `${showWeekday ? `<span>${weekdays[date.getDay()]}</span>` : ""}<strong>${date.getDate()}</strong><span class="day-dot" style="visibility:${events[dayKey]?.length ? "visible" : "hidden"}"></span>`;
+			day.addEventListener("click", () => {
+				selectedDate = localDate(date);
+				calendarCursor = new Date(selectedDate);
+				weekOffset = getWeekOffset(selectedDate);
+				renderCalendar();
+			});
+			return day;
+		}
+		function renderCalendar() {
+			const monthMode = calendarView === "month";
 			const week = document.getElementById("week-days");
+			const weekdaysHeader = document.getElementById("calendar-weekdays");
+			weekdaysHeader.hidden = !monthMode;
+			week.classList.toggle("month-grid", monthMode);
 			week.replaceChildren();
-			for (let index = 0; index < 7; index++) {
-				const date = new Date(weekStart);
-				date.setDate(weekStart.getDate() + index);
-				const dayKey = dateKey(date);
-				const isToday = dayKey === dateKey(today);
-				const isSelected = dayKey === dateKey(selectedDate);
-				const day = document.createElement("button");
-				day.type = "button";
-				day.className = `day${isToday ? " today" : ""}${isSelected ? " selected" : ""}`;
-				day.setAttribute("aria-label", formatDate.format(date));
-				day.setAttribute("aria-pressed", String(isSelected));
-				day.innerHTML = `<span>${weekdays[date.getDay()]}</span><strong>${date.getDate()}</strong><span class="day-dot" style="visibility:${events[dayKey]?.length ? "visible" : "hidden"}"></span>`;
-				day.addEventListener("click", () => { selectedDate = new Date(date); renderWeek(); });
-				week.append(day);
+			if (monthMode) {
+				const monthStart = new Date(calendarCursor.getFullYear(), calendarCursor.getMonth(), 1);
+				document.getElementById("month-label").textContent = `${monthStart.getFullYear()}년 ${monthStart.getMonth() + 1}월`;
+				const gridStart = new Date(monthStart);
+				gridStart.setDate(1 - monthStart.getDay());
+				for (let index = 0; index < 42; index++) {
+					const date = new Date(gridStart);
+					date.setDate(gridStart.getDate() + index);
+					week.append(createCalendarDay(date, false, date.getMonth() !== monthStart.getMonth()));
+				}
+				week.setAttribute("aria-label", `${monthStart.getFullYear()}년 ${monthStart.getMonth() + 1}월 날짜`);
+			} else {
+				const weekStart = new Date(today);
+				weekStart.setDate(today.getDate() - today.getDay() + weekOffset * 7);
+				const labelDate = weekOffset === 0 ? today : weekStart;
+				document.getElementById("month-label").textContent = `${labelDate.getFullYear()}년 ${labelDate.getMonth() + 1}월`;
+				for (let index = 0; index < 7; index++) {
+					const date = new Date(weekStart);
+					date.setDate(weekStart.getDate() + index);
+					week.append(createCalendarDay(date, true));
+				}
+				week.setAttribute("aria-label", "이번 주 날짜");
 			}
+			document.getElementById("prev-period").setAttribute("aria-label", monthMode ? "이전 달" : "이전 주");
+			document.getElementById("next-period").setAttribute("aria-label", monthMode ? "다음 달" : "다음 주");
+			document.getElementById("week-view").classList.toggle("active", !monthMode);
+			document.getElementById("week-view").setAttribute("aria-pressed", String(!monthMode));
+			document.getElementById("month-view").classList.toggle("active", monthMode);
+			document.getElementById("month-view").setAttribute("aria-pressed", String(monthMode));
 			renderAgenda(selectedDate);
 			icons();
 		}
@@ -384,7 +449,7 @@
 					remove.addEventListener("click", () => showDialog("일정 삭제", `${formatDate.format(agendaDate)} ${item.time} · ${item.title} 일정을 삭제할까요?`, "삭제", () => {
 						events[key].splice(index, 1);
 						localStorage.setItem("pado-events", JSON.stringify(events));
-						renderWeek();
+						renderCalendar();
 						showToast("일정을 삭제했어요.");
 					}));
 					event.append(remove);
@@ -528,17 +593,35 @@
 		document.getElementById("note-area").addEventListener("input", queueNoteSave);
 		window.addEventListener("beforeunload", saveNotes);
 		renderNotes();
-		function changeWeek(direction) {
-			const selectedWeekday = selectedDate.getDay();
-			weekOffset += direction;
-			const weekStart = new Date(today);
-			weekStart.setDate(today.getDate() - today.getDay() + weekOffset * 7);
-			selectedDate = new Date(weekStart);
-			selectedDate.setDate(weekStart.getDate() + selectedWeekday);
-			renderWeek();
+		function setCalendarView(view) {
+			calendarView = view;
+			calendarCursor = new Date(selectedDate);
+			weekOffset = getWeekOffset(selectedDate);
+			renderCalendar();
 		}
-		document.getElementById("prev-week").addEventListener("click", () => changeWeek(-1));
-		document.getElementById("next-week").addEventListener("click", () => changeWeek(1));
+		function changeCalendarPeriod(direction) {
+			if (calendarView === "week") {
+				const selectedWeekday = selectedDate.getDay();
+				weekOffset += direction;
+				const weekStart = new Date(today);
+				weekStart.setDate(today.getDate() - today.getDay() + weekOffset * 7);
+				selectedDate = new Date(weekStart);
+				selectedDate.setDate(weekStart.getDate() + selectedWeekday);
+				calendarCursor = new Date(selectedDate);
+			} else {
+				const dayOfMonth = selectedDate.getDate();
+				const targetMonth = new Date(calendarCursor.getFullYear(), calendarCursor.getMonth() + direction, 1);
+				const lastDay = new Date(targetMonth.getFullYear(), targetMonth.getMonth() + 1, 0).getDate();
+				selectedDate = new Date(targetMonth.getFullYear(), targetMonth.getMonth(), Math.min(dayOfMonth, lastDay));
+				calendarCursor = new Date(selectedDate);
+				weekOffset = getWeekOffset(selectedDate);
+			}
+			renderCalendar();
+		}
+		document.getElementById("week-view").addEventListener("click", () => setCalendarView("week"));
+		document.getElementById("month-view").addEventListener("click", () => setCalendarView("month"));
+		document.getElementById("prev-period").addEventListener("click", () => changeCalendarPeriod(-1));
+		document.getElementById("next-period").addEventListener("click", () => changeCalendarPeriod(1));
 
 		const dialog = document.getElementById("info-dialog");
 		let dialogAction = null;
@@ -579,13 +662,9 @@
 			events[key] = [...(events[key] || []), { time, title, detail: "나의 일정" }].sort((a, b) => a.time.localeCompare(b.time));
 			localStorage.setItem("pado-events", JSON.stringify(events));
 			selectedDate = date;
-			const currentWeekStart = new Date(today);
-			currentWeekStart.setDate(today.getDate() - today.getDay());
-			const selectedWeekStart = new Date(date);
-			selectedWeekStart.setDate(date.getDate() - date.getDay());
-			const utcDay = (value) => Date.UTC(value.getFullYear(), value.getMonth(), value.getDate());
-			weekOffset = Math.round((utcDay(selectedWeekStart) - utcDay(currentWeekStart)) / (7 * 24 * 60 * 60 * 1000));
-			renderWeek();
+			calendarCursor = new Date(date);
+			weekOffset = getWeekOffset(date);
+			renderCalendar();
 			eventDialog.close();
 			eventForm.reset();
 			showToast("일정을 추가했어요.");
@@ -731,7 +810,7 @@
 			clearTimeout(toastTimer);
 			toastTimer = setTimeout(() => toast.classList.remove("show"), 2200);
 		}
-		renderWeek();
+		renderCalendar();
 		renderTasks();
 		renderNews();
 		refreshLiveNews();
