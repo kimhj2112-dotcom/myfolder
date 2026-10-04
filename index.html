@@ -680,17 +680,44 @@
 		const googleSetupDialog = document.getElementById("google-setup-dialog");
 		const googleSetupForm = document.getElementById("google-setup-form");
 		const googleClientIdInput = document.getElementById("google-client-id");
-		document.getElementById("google-origin").textContent = location.origin;
+		function getGoogleOriginHint() {
+			if (location.protocol === "file:") return "http://localhost:8000";
+			return location.origin || "http://localhost:8000";
+		}
+		function isGoogleOriginSupported() {
+			return location.protocol !== "file:" && location.origin !== "null" && Boolean(location.origin);
+		}
+		function validateGoogleEnvironment() {
+			if (!isGoogleOriginSupported()) {
+				const originHint = getGoogleOriginHint();
+				setGoogleStatus(`Google 연결은 ${originHint} 같은 로컬 서버 주소에서만 사용할 수 있어요.`);
+				showDialog("Google 연결 조건", "Google OAuth는 file:// 경로에서 사용할 수 없습니다. VS Code 터미널에서 python -m http.server 8000 을 실행한 뒤 http://localhost:8000 으로 열어 다시 연결해 주세요.", "확인");
+				return false;
+			}
+			return true;
+		}
+		document.getElementById("google-origin").textContent = getGoogleOriginHint();
 		googleClientIdInput.value = googleClientId;
 		document.getElementById("connect-google").addEventListener("click", () => {
+			if (!validateGoogleEnvironment()) return;
 			googleClientIdInput.value = googleClientId;
 			googleSetupDialog.showModal();
 		});
 		document.getElementById("google-setup-cancel").addEventListener("click", () => googleSetupDialog.close());
 		googleSetupForm.addEventListener("submit", async (event) => {
 			event.preventDefault();
+			if (!validateGoogleEnvironment()) return;
 			googleClientId = googleClientIdInput.value.trim();
-			if (!googleClientId) return;
+			if (!googleClientId) {
+				setGoogleStatus("Google OAuth Client ID를 입력해 주세요.");
+				showToast("Client ID를 입력해야 Google 연결이 가능해요.");
+				return;
+			}
+			if (!googleClientId.includes(".apps.googleusercontent.com")) {
+				setGoogleStatus("올바른 Google OAuth Client ID 형식이 아니에요.");
+				showToast("Client ID 형식을 확인해 주세요.");
+				return;
+			}
 			localStorage.setItem(googleClientIdKey, googleClientId);
 			googleSetupDialog.close();
 			await connectGoogleCalendar();
@@ -780,6 +807,12 @@
 			return { shared, failed };
 		}
 		async function connectGoogleCalendar() {
+			if (!validateGoogleEnvironment()) return;
+			if (!googleClientId) {
+				setGoogleStatus("Google OAuth Client ID를 먼저 입력해 주세요.");
+				showToast("Client ID를 먼저 입력해 주세요.");
+				return;
+			}
 			setGoogleStatus("Google 계정 연결 중...");
 			document.getElementById("connect-google").disabled = true;
 			try {
